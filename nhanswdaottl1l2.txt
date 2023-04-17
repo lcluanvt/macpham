@@ -1,0 +1,41 @@
+#include <msp430g2553.h>
+
+
+void main(void)
+{
+    WDTCTL = WDTPW + WDTHOLD; // T?t watchdog timer
+
+    P1DIR |= (BIT0 + BIT6);   // Thi?t l?p chân GPIO cho LED1 và LED2 là d?u ra
+    P1OUT &= ~(BIT6 + BIT6);  // T?t LED1 và LED2
+
+    P1DIR &= ~BIT3;            // Thi?t l?p chân GPIO cho nút nh?n SW1 là d?u vào
+    P1REN |= BIT3;             // Kích ho?t di?n tr? kéo lên nút nh?n SW1
+    P1OUT |= BIT3;             // Thi?t l?p di?n tr? kéo lên nút nh?n SW1
+
+    int state = 0;            // Tr?ng thái ban d?u c?a chuong trình là 0
+
+    while(1)
+    {
+        if((P1IN & BIT3) == 0) // N?u nút nh?n SW1 du?c nh?n
+        {
+            __delay_cycles(1000);  // Ch? 1ms d? d?i tránh nhi?u
+            if((P1IN & BIT3) == 0)  // Ki?m tra l?i tr?ng thái c?a nút nh?n SW1
+            {
+                state = 1 - state;  // Ð?i tr?ng thái c?a chuong trình
+                if(state == 1)      // N?u tr?ng thái m?i là 1
+                {
+                    P1OUT |= BIT0;  // B?t LED1
+                    P1OUT &= ~BIT6; // T?t LED2
+                }
+                else                // N?u tr?ng thái m?i là 0
+                {
+                    P1OUT &= ~BIT0; // T?t LED1
+                    P1OUT |= BIT6;  // B?t LED2
+                }
+                __delay_cycles(1000000); // Ch? 1s
+            }
+        }
+    }
+
+
+}
